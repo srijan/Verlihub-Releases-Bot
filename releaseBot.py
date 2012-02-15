@@ -1,11 +1,12 @@
 #!/usr/bin/env python2
 # Created by Srijan Choudhary
 
+import vh
+import string
+
 head = "==================== Release BOT ===================="
 foot = "====================================================="
 endl = "\r\n"
-
-import vh
 
 def header(text):
     return endl + endl + head + endl + text
@@ -43,14 +44,16 @@ def addRelease(cat,text,user):
     else:
         return False
 
+categories = getCategoriesList()
+
 def OnUserCommand(nick,data):
+    global categories
     if data == "+uploads" or data == "+rel":
-        vh.pm(footer(header("Under Construction")),nick)
+        vh.usermc(footer(header("Under Construction")),nick)
         return 0
 
     if data[:5] == "+rel ":
         arg = data[5:].upper()
-        categories = getCategoriesList()
 
         if arg == "ALL":
             msg = ""
@@ -60,7 +63,7 @@ def OnUserCommand(nick,data):
                     msg += endl+cat[0]+":"+endl
                     for rel in rels:
                         msg += rel[0]+" : "+rel[1]+" (By "+rel[2]+")"+endl
-            vh.pm(footer(header(msg)),nick)
+            vh.usermc(footer(header(msg)),nick)
             return 0
 
         for cat in categories:
@@ -72,14 +75,30 @@ def OnUserCommand(nick,data):
                         msg += rel[0]+" : "+rel[1]+" (By "+rel[2]+")"+endl
                 else:
                     msg += "No releases in this category"+endl
-                vh.pm(footer(header(msg)),nick)
+                vh.usermc(footer(header(msg)),nick)
                 return 0
 
         msg = endl+"Usage:"+endl+endl+"+rel <category_name>"+endl+endl+"Where <category_name> is one of:"+endl+endl
         for cat in categories:
             msg += cat[0]+endl
-        vh.pm(footer(header(msg)),nick)
+        vh.usermc(footer(header(msg)),nick)
         return 0
 
-    #if data[:8] == "+reladd ":
+    if data[:8] == "+reladd ":
+        args = data[8:].split()
+        cat = [args[0].upper()]
+        text = string.join(args[1:])
+        if cat in categories:
+            res = addRelease(cat,text,nick)
+            if res:
+                msg = "Release added successfully!"
+            else:
+                msg = "There was some error in adding the release."
+            vh.usermc(footer(header(msg)),nick)
+        else:
+            msg = endl+"Usage:"+endl+endl+"+reladd <category_name> <text>"+endl+endl+"Where <category_name> is one of:"+endl+endl
+            for cat in categories:
+                msg += cat[0]+endl
+            msg += endl+"And <text> can be any text (name, link, etc..)"+endl
+            vh.usermc(footer(header(msg)),nick)
     return 0
