@@ -14,11 +14,6 @@ def header(text):
 def footer(text):
     return text + endl + foot + endl
 
-help = """
-
-
-
-"""
 
 def getCategoriesList():
     query = "SELECT `name` FROM `pi_rel_categories`"
@@ -62,11 +57,43 @@ def adminDeleteReleaseById(idno):
 
 categories = getCategoriesList()
 
+help = """
+
+================================================================
+                         %[HUB]
+                Release BOT Commands
+================================================================
+
+For users:
+    +relhelp                    : Show this help
+    +rel all                    : Show all releases
+    +rel <category_name>        : Show releases for particular category
+
+
+For downloaders:
+    +reladd <category_name> <text>      : Adds new release.
+    +reldelete <release_idno>           : Deletes a release.
+
+List of categories (case-insensitive):
+""".replace("%[HUB]",vh.GetConfig("config", "hub_name"))
+for cat in categories:
+    help += endl+cat[0]
+help += """
+
+================================================================
+
+"""
+
+
 def OnUserCommand(nick,data):
     global categories
-    if data == "+uploads" or data == "+rel":
-        vh.usermc(footer(header("Under Construction")),nick)
+    if data == "+uploads" or data == "+rel" or data == "+relhelp":
+        vh.usermc(help,nick)
         return 0
+
+    if data == "+help":
+        vh.usermc(help,nick)
+        return 1
 
     if data[:5] == "+rel ":
         arg = data[5:].upper()
