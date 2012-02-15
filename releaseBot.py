@@ -80,6 +80,8 @@ for cat in categories:
     help += endl+cat[0]
 help += """
 
+Anyone interested can view the source here: https://github.com/srijan/Verlihub-Releases-Bot
+
 ================================================================
 
 """
