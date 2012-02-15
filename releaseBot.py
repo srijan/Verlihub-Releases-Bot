@@ -85,6 +85,10 @@ def OnUserCommand(nick,data):
         return 0
 
     if data[:8] == "+reladd ":
+        if vh.GetUserClass() < 3:
+            msg = "You need to have a downloader account to use this function."+endl+"Contact the hub owner with proof for getting a downloader account."
+            vh.usermc(footer(header(msg)),nick)
+            return 0
         args = data[8:].split()
         cat = [args[0].upper()]
         text = string.join(args[1:])
@@ -101,4 +105,5 @@ def OnUserCommand(nick,data):
                 msg += cat[0]+endl
             msg += endl+"And <text> can be any text (name, link, etc..)"+endl
             vh.usermc(footer(header(msg)),nick)
+        return 0
     return 0
