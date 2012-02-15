@@ -146,4 +146,4 @@ def OnUserCommand(nick,data):
         vh.usermc(footer(header(msg)),nick)
         return 0
 
-    return 0
+    return 1
