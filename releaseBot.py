@@ -29,15 +29,31 @@ def getCategoriesList():
         return None
 
 def getReleasesByCategory(cat):
-    query = "SELECT `added_at`,`text`,`added_by` FROM `pi_releases` WHERE `category`='"+cat[0]+"' ORDER BY `added_at`"
+    query = "SELECT `id`, `added_at`,`text`,`added_by` FROM `pi_releases` WHERE `category`='"+cat[0]+"' ORDER BY `added_at`"
     res, rows = vh.SQL(query)
     if res:
         return rows
     else:
         return None
 
-def addRelease(cat,text,user):
-    query = "INSERT INTO `pi_releases` (`category`, `text`, `added_by`) VALUES ('"+cat+"','"+text+"','"+user+"')"
+def addRelease(cat,text,nick):
+    query = "INSERT INTO `pi_releases` (`category`, `text`, `added_by`) VALUES ('"+cat[0]+"','"+text+"','"+nick+"')"
+    res = vh.SQL(query)
+    if res:
+        return True
+    else:
+        return False
+
+def downloaderDeleteReleaseById(nick,idno):
+    query = "DELETE FROM `pi_releases` WHERE `id`='"+idno+"' AND `added_by`='"+nick+"' LIMIT 1"
+    res = vh.SQL(query)
+    if res:
+        return True
+    else:
+        return False
+
+def adminDeleteReleaseById(idno):
+    query = "DELETE FROM `pi_releases` WHERE `id`='"+idno+"' LIMIT 1"
     res = vh.SQL(query)
     if res:
         return True
@@ -62,7 +78,7 @@ def OnUserCommand(nick,data):
                 if rels != None:
                     msg += endl+cat[0]+":"+endl
                     for rel in rels:
-                        msg += rel[0]+" : "+rel[1]+" (By "+rel[2]+")"+endl
+                        msg += rel[0]+".) "+rel[2]+" (By "+rel[3]+")"+endl
             vh.usermc(footer(header(msg)),nick)
             return 0
 
@@ -72,7 +88,7 @@ def OnUserCommand(nick,data):
                 rels = getReleasesByCategory(cat)
                 if rels != None:
                     for rel in rels:
-                        msg += rel[0]+" : "+rel[1]+" (By "+rel[2]+")"+endl
+                        msg += rel[0]+".) "+rel[2]+" (By "+rel[3]+")"+endl
                 else:
                     msg += "No releases in this category"+endl
                 vh.usermc(footer(header(msg)),nick)
@@ -85,7 +101,7 @@ def OnUserCommand(nick,data):
         return 0
 
     if data[:8] == "+reladd ":
-        if vh.GetUserClass() < 3:
+        if vh.GetUserClass(nick) < 3:
             msg = "You need to have a downloader account to use this function."+endl+"Contact the hub owner with proof for getting a downloader account."
             vh.usermc(footer(header(msg)),nick)
             return 0
@@ -106,4 +122,28 @@ def OnUserCommand(nick,data):
             msg += endl+"And <text> can be any text (name, link, etc..)"+endl
             vh.usermc(footer(header(msg)),nick)
         return 0
+
+    if data[:11] == "+reldelete ":
+        userClass = vh.GetUserClass(nick)
+        if userClass < 3:
+            msg = "You need to have a downloader account to use this function."+endl+"Contact the hub owner with proof for getting a downloader account."
+            vh.usermc(footer(header(msg)),nick)
+            return 0
+        idno = data[11:]
+        if userClass < 4:
+            res = downloaderDeleteReleaseById(nick,idno)
+            if res:
+                msg = "Release deleted successfully!"
+            else:
+                msg = "Either the release was not found, or you don't have sufficient privileges to delete some one else's release."
+            vh.usermc(footer(header(msg)),nick)
+            return 0
+        res = adminDeleteReleaseById(idno)
+        if res:
+            msg = "Release deleted successfully!"
+        else:
+            msg = "The release #"+idno+" was not found."
+        vh.usermc(footer(header(msg)),nick)
+        return 0
+
     return 0
