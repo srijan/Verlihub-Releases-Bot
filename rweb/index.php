@@ -7,7 +7,7 @@
 } ?>
 
 <?php
-  include "includes/constants.php";
+  require_once "includes/constants.php";
   $connection = mysql_connect(DB_SERVER,DB_USER,DB_PASS);
 
   if(!$connection) {
@@ -37,6 +37,7 @@
       }
     }
   }
+  mysql_close();
 
 ?>
 
