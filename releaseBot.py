@@ -64,15 +64,21 @@ help = """
                 Release BOT Commands
 ================================================================
 
+For downloaders:
+    +reladd <category> <release>    : Adds new release.
+                                    (Spaces allowed in release name)
+
+    +relimport <category>           : Imports a list of releases.
+    <release_1>                     : (release name cannot contain spaces)
+    <release_2>
+    ...
+
+    +reldelete <release_idno>       : Deletes a release.
+
 For users:
     +relhelp                    : Show this help
     +rel all                    : Show all releases
-    +rel <category_name>        : Show releases for particular category
-
-
-For downloaders:
-    +reladd <category_name> <text>      : Adds new release.
-    +reldelete <release_idno>           : Deletes a release.
+    +rel <category>             : Show releases for particular category
 
 List of categories (case-insensitive):
 """.replace("%[HUB]",vh.GetConfig("config", "hub_name"))
@@ -81,9 +87,7 @@ for cat in categories:
 help += """
 
 Anyone interested can view the source here: https://github.com/srijan/Verlihub-Releases-Bot
-
 ================================================================
-
 """
 
 
@@ -149,6 +153,32 @@ def OnUserCommand(nick,data):
             for cat in categories:
                 msg += cat[0]+endl
             msg += endl+"And <text> can be any text (name, link, etc..)"+endl
+            vh.usermc(footer(header(msg)),nick)
+        return 0
+
+    if data[:11] == "+relimport ":
+        if vh.GetUserClass(nick) < 3:
+            msg = "You need to have a downloader account to use this function."+endl+"Contact the hub owner with proof for getting a downloader account."
+            vh.usermc(footer(header(msg)),nick)
+            return 0
+        args = data[11:].split()
+        cat = [args[0].upper()]
+        relList = string.join(args[1:]).split()
+        if cat in categories:
+            msg = "Import Status:"+endl
+            for rel in relList:
+                res = addRelease(cat,rel,nick)
+                if res:
+                    msg += "Success: "
+                else:
+                    msg += "Fail: "
+                msg += rel+endl
+            vh.usermc(footer(header(msg)),nick)
+        else:
+            msg = endl+"Usage:"+endl+endl+"+relimport <category_name>"+endl+"<release 1>"+endl+"<release 2>"+endl+"..."+endl+endl+"Where <category_name> is one of:"+endl+endl
+            for cat in categories:
+                msg += cat[0]+endl
+            msg += endl+"And <release n> can be any text (name, link, etc..) without spaces."+endl
             vh.usermc(footer(header(msg)),nick)
         return 0
 
