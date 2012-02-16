@@ -14,6 +14,8 @@ def header(text):
 def footer(text):
     return text + endl + foot + endl
 
+def report(msg):
+    vh.classmc('Release BOT: '+msg,10,10)
 
 def getCategoriesList():
     query = "SELECT `name` FROM `pi_rel_categories`"
@@ -55,6 +57,53 @@ def adminDeleteReleaseById(idno):
     else:
         return False
 
+def initSetupCheck():
+    report('Running init check.')
+    query = "SHOW TABLES LIKE 'pi_rel_categories'"
+    res, rows = vh.SQL(query)
+    if res:
+        if rows == None:
+            report("Release categories table not found. Creating default one.")
+            query = """CREATE TABLE `pi_rel_categories` (
+                        `id` int(11) NOT NULL AUTO_INCREMENT,
+                        `name` varchar(20) NOT NULL,
+                        PRIMARY KEY (`id`)
+                    )"""
+            res = vh.SQL(query)
+            if res:
+                query = """INSERT INTO `pi_rel_categories` (`name`) VALUES
+                            ('MOVIES'),
+                            ('SERIES'),
+                            ('MUSIC'),
+                            ('GAMES'),
+                            ('APPS'),
+                            ('OTHERS')"""
+                res = vh.SQL(query)
+                if res:
+                    report("Categories table created.")
+        else:
+            report("Categories table found.")
+    query = "SHOW TABLES LIKE 'pi_releases'"
+    res, rows = vh.SQL(query)
+    if res:
+        if rows == None:
+            report("Releases table not found. Creating default one.")
+            query = """CREATE TABLE `pi_releases` (
+                        `id` int(11) NOT NULL AUTO_INCREMENT,
+                        `added_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        `category` varchar(20) NOT NULL,
+                        `text` text,
+                        `added_by` varchar(100) DEFAULT NULL,
+                        PRIMARY KEY (`id`)
+                    )"""
+            res = vh.SQL(query)
+            if res:
+                    report("Releases table created.")
+        else:
+            report("Releases table found.")
+    report("Loaded successfully.")
+
+initSetupCheck()
 categories = getCategoriesList()
 
 help = """
