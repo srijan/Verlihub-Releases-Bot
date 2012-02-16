@@ -22,7 +22,17 @@
   $query = "SELECT `name` FROM `pi_rel_categories`";
   $categories_set = mysql_query($query);
 
-  echo "<table border='1'><tr><th>ID</th><th>Release</th><th>Downloader</th></tr></p>";
+  echo "
+    <table id='gradient-style' summary='Releases List'>
+      <thead>
+        <tr>
+          <th scope='col'>ID</th>
+          <th scope='col'>Release</th>
+          <th scope='col'>Downloader</th>
+        </tr>
+      </thead>
+      <tbody>
+      ";
 
   while($category = mysql_fetch_array($categories_set)) {
     $query = "SELECT `id`,`text`,`added_by`
@@ -31,12 +41,24 @@
               ORDER BY `added_at`";
     $result_set = mysql_query($query);
     if(mysql_num_rows($result_set) > 0) {
-      echo "<tr></tr><tr><th></th><th>".$category['name']."</th><th></th></tr><tr></tr>";
+      echo "
+        <tr>
+          <th colspan='3'>".$category['name']."</th>
+        </tr>";
       while($result = mysql_fetch_array($result_set)) {
-        echo "<tr><td>".$result['id']."</td><td>".$result['text']."</td><td>".$result['added_by']."</td></tr>";
+        echo "
+          <tr>
+            <td>".$result['id']."</td>
+            <td>".$result['text']."</td>
+            <td>".$result['added_by']."</td>
+          </tr>";
       }
     }
   }
+  echo "
+      </tbody>
+    </table>
+    ";
   mysql_close();
 
 ?>
