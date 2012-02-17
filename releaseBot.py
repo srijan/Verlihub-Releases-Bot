@@ -160,13 +160,24 @@ Anyone interested can view the source here: https://github.com/srijan/Verlihub-R
 
 def OnUserCommand(nick,data):
     global categories
-    if data == "+uploads" or data == "+rel" or data == "+relhelp":
+    if data == "+rel" or data == "+relhelp":
         vh.usermc(help,nick)
         return 0
 
     if data == "+help":
         vh.usermc(help,nick)
         return 1
+
+    if data == "+uploads":
+        msg = ""
+        for cat in categories:
+            rels = getReleasesByCategory(cat)
+            if rels != None:
+                msg += endl+cat[0]+":"+endl
+                for rel in rels:
+                    msg += rel[0]+".) "+rel[2]+" (By "+rel[3]+")"+endl
+        vh.usermc(footer(header(msg)),nick)
+        return 0
 
     if data[:5] == "+rel ":
         arg = data[5:].upper()
