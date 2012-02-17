@@ -9,7 +9,10 @@ import string
 head = "==================== Release BOT ===================="
 foot = "====================================================="
 endl = "\r\n"
-min_class_allow = 3
+min_class_allow = 3                         # Minimum class allowed to add/delete releases
+autocleaner_timer = 86400                   # Autocleaner runs every 3600 seconds
+autocleaner_expire = '1 WEEK'               # How old entries to delete. Can be n DAY, n WEEK, n MONTH, n YEAR, etc..
+show_debug_messages = True                  # Whether to show debug messages to Master
 
 # End of Config Variables
 
@@ -20,7 +23,8 @@ def footer(text):
     return text + endl + foot + endl
 
 def report(msg):
-    vh.classmc('Release BOT: '+msg,10,10)
+    if show_debug_messages:
+        vh.classmc('Release BOT: '+msg,10,10)
 
 def getCategoriesList():
     query = "SELECT `name` FROM `pi_rel_categories`"
@@ -57,6 +61,14 @@ def getReleaseDownloader(idno):
 
 def deleteReleaseById(idno):
     query = "DELETE FROM `pi_releases` WHERE `id`='"+idno+"' LIMIT 1"
+    res = vh.SQL(query)
+    if res:
+        return True
+    else:
+        return False
+
+def cleanOldReleases():
+    query = "DELETE FROM `pi_releases` WHERE `added_at` < DATE_SUB(NOW(), INTERVAL "+autocleaner_expire+")"
     res = vh.SQL(query)
     if res:
         return True
@@ -259,3 +271,13 @@ def OnUserCommand(nick,data):
         vh.usermc(footer(header(msg)),nick)
         return 0
     return 1
+
+timeCounter = 0
+def OnTimer():
+    global timeCounter
+    if timeCounter == autocleaner_timer:
+        report("Cleaning old releases")
+        cleanOldReleases()
+        timeCounter = 0
+    else:
+        timeCounter+=1
