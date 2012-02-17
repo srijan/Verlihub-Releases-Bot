@@ -46,10 +46,17 @@
           <th colspan='3'>".$category['name']."</th>
         </tr>";
       while($result = mysql_fetch_array($result_set)) {
+        if(substr($result['text'],0,8) == "magnet:?") {
+          parse_str($result['text']);
+          $text = "<a href='".$result['text']."'>".$dn."</a>";
+        }
+        else {
+          $text = $result['text'];
+        }
         echo "
           <tr>
             <td>".$result['id']."</td>
-            <td>".$result['text']."</td>
+            <td>".$text."</td>
             <td>".$result['added_by']."</td>
           </tr>";
       }
