@@ -1,16 +1,16 @@
 ## About
 
-This is a releases managing bot for verlihub, written in python.
+This is a releases managing bot for verlihub, using the python API.
 
 
 ## Installation
 
-* Copy releaseBoy.py to your scripts directory.
-* Load the script using the !pyload command, or restart the hub.
+* Copy `releaseBot.py` to your scripts directory.
+* Load the script using the `!pyload` command, or restart the hub.
 
 ## Configuration
 
-* Tweak the variables in the file.
+* Tweak the variables in the file `releaseBot.py`.
 * Tables will be created automatically on first run.
 * Add/Modify/Delete the release categories in the table `pi_rel_categories` manually.
 (Commands will be added soon for doing this through the hub interface)
