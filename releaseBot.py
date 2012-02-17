@@ -4,9 +4,14 @@
 import vh
 import string
 
+# Config Variables. Change to suit your needs.
+
 head = "==================== Release BOT ===================="
 foot = "====================================================="
 endl = "\r\n"
+min_class_allow = 3
+
+# End of Config Variables
 
 def header(text):
     return endl + endl + head + endl + text
@@ -41,15 +46,16 @@ def addRelease(cat,text,nick):
     else:
         return False
 
-def downloaderDeleteReleaseById(nick,idno):
-    query = "DELETE FROM `pi_releases` WHERE `id`='"+idno+"' AND `added_by`='"+nick+"' LIMIT 1"
-    res = vh.SQL(query)
+def getReleaseDownloader(idno):
+    query = "SELECT `added_by` FROM `pi_releases` WHERE `id`="+idno+" LIMIT 1"
+    res, rows = vh.SQL(query)
     if res:
-        return True
-    else:
-        return False
+        if rows != None:
+            return rows[0]
+        else:
+            return None
 
-def adminDeleteReleaseById(idno):
+def deleteReleaseById(idno):
     query = "DELETE FROM `pi_releases` WHERE `id`='"+idno+"' LIMIT 1"
     res = vh.SQL(query)
     if res:
@@ -101,7 +107,7 @@ def initSetupCheck():
                     report("Releases table created.")
         else:
             report("Releases table found.")
-    report("Loaded successfully.")
+    report("Loaded successfully. Type +relhelp for help.")
 
 initSetupCheck()
 categories = getCategoriesList()
@@ -183,7 +189,7 @@ def OnUserCommand(nick,data):
         return 0
 
     if data[:8] == "+reladd ":
-        if vh.GetUserClass(nick) < 3:
+        if vh.GetUserClass(nick) < min_class_allow:
             msg = "You need to have a downloader account to use this function."+endl+"Contact the hub owner with proof for getting a downloader account."
             vh.usermc(footer(header(msg)),nick)
             return 0
@@ -206,7 +212,7 @@ def OnUserCommand(nick,data):
         return 0
 
     if data[:11] == "+relimport ":
-        if vh.GetUserClass(nick) < 3:
+        if vh.GetUserClass(nick) < min_class_allow:
             msg = "You need to have a downloader account to use this function."+endl+"Contact the hub owner with proof for getting a downloader account."
             vh.usermc(footer(header(msg)),nick)
             return 0
@@ -233,25 +239,23 @@ def OnUserCommand(nick,data):
 
     if data[:11] == "+reldelete ":
         userClass = vh.GetUserClass(nick)
-        if userClass < 3:
+        if userClass < min_class_allow:
             msg = "You need to have a downloader account to use this function."+endl+"Contact the hub owner with proof for getting a downloader account."
             vh.usermc(footer(header(msg)),nick)
             return 0
+
         idno = data[11:]
-        if userClass < 4:
-            res = downloaderDeleteReleaseById(nick,idno)
+        downloader = getReleaseDownloader(idno)
+        downloaderClass = vh.GetUserClass(downloader)
+
+        if nick == downloader or userClass > downloaderClass:
+            res = deleteReleaseById(idno)
             if res:
                 msg = "Release deleted successfully!"
             else:
-                msg = "Either the release was not found, or you don't have sufficient privileges to delete some one else's release."
-            vh.usermc(footer(header(msg)),nick)
-            return 0
-        res = adminDeleteReleaseById(idno)
-        if res:
-            msg = "Release deleted successfully!"
+                msg = "The release #"+idno+" was not found."
         else:
-            msg = "The release #"+idno+" was not found."
+            msg = "Cannot delete release #"+idno+endl+"Either it was not found, or was added by someone equal to or higher than you."
         vh.usermc(footer(header(msg)),nick)
         return 0
-
     return 1
