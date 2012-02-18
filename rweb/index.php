@@ -43,7 +43,7 @@ function bytesToSize($bytes, $precision = 2) {
 <?php
 
   function printReleasesForCategory($category) {
-    $query = "SELECT `id`,`text`,`added_by`
+    $query = "SELECT `id`,`text`,`added_by`, `added_at`
               FROM `pi_releases`
               WHERE `category`='".$category."'
               ORDER BY `added_at` DESC";
@@ -51,7 +51,7 @@ function bytesToSize($bytes, $precision = 2) {
     if(mysql_num_rows($result_set) > 0) {
       echo "
         <tr>
-          <th colspan='3'>".$category."</th>
+          <th colspan='4'>".$category."</th>
         </tr>";
       while($result = mysql_fetch_array($result_set)) {
         if(substr($result['text'],0,8) == "magnet:?") {
@@ -66,6 +66,7 @@ function bytesToSize($bytes, $precision = 2) {
             <td>".$result['id']."</td>
             <td>".$text."</td>
             <td>".$result['added_by']."</td>
+            <td>".date("g:ia,d/m/y",strtotime($result['added_at']))."</td>
           </tr>";
       }
     }
@@ -90,6 +91,7 @@ function bytesToSize($bytes, $precision = 2) {
           <th scope='col'>ID</th>
           <th scope='col'>Release</th>
           <th scope='col'>Downloader</th>
+          <th scope='col'>Date</th>
         </tr>
       </thead>
       <tbody>
