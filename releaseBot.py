@@ -10,7 +10,7 @@ head = "==================== Release BOT ===================="
 foot = "====================================================="
 endl = "\r\n"
 min_class_allow = 3                         # Minimum class allowed to add/delete releases
-autocleaner_timer = 86400                   # Autocleaner runs every 3600 seconds
+autocleaner_timer = 14400                   # Autocleaner runs every 14400 seconds
 autocleaner_expire = '1 WEEK'               # How old entries to delete. Can be n DAY, n WEEK, n MONTH, n YEAR, etc..
 show_debug_messages = True                  # Whether to show debug messages to Master
 
@@ -134,6 +134,7 @@ help = """
 For downloaders:
     +reladd <category> <release>    : Adds new release.
                                     (Spaces allowed in release name)
+    +reladdas <nick> <category> <release> : Add release as <nick>
 
     +relimport <category>           : Imports a list of releases.
     <release_1>                     : (release name cannot contain spaces)
@@ -228,6 +229,30 @@ def OnUserCommand(nick,data):
             vh.usermc(footer(header(msg)),nick)
         else:
             msg = endl+"Usage:"+endl+endl+"+reladd <category_name> <text>"+endl+endl+"Where <category_name> is one of:"+endl+endl
+            for cat in categories:
+                msg += cat[0]+endl
+            msg += endl+"And <text> can be any text (name, link, etc..)"+endl
+            vh.usermc(footer(header(msg)),nick)
+        return 0
+
+    if data[:10] == "+reladdas ":
+        if vh.GetUserClass(nick) < min_class_allow:
+            msg = "You need to have a downloader account to use this function."+endl+"Contact the hub owner with proof for getting a downloader account."
+            vh.usermc(footer(header(msg)),nick)
+            return 0
+        args = data[10:].split()
+        newnick = args[0]
+        cat = [args[1].upper()]
+        text = string.join(args[2:])
+        if cat in categories:
+            res = addRelease(cat,text,newnick)
+            if res:
+                msg = "Release added successfully!"
+            else:
+                msg = "There was some error in adding the release."
+            vh.usermc(footer(header(msg)),nick)
+        else:
+            msg = endl+"Usage:"+endl+endl+"+reladdas <nick> <category_name> <text>"+endl+endl+"Where <category_name> is one of:"+endl+endl
             for cat in categories:
                 msg += cat[0]+endl
             msg += endl+"And <text> can be any text (name, link, etc..)"+endl
