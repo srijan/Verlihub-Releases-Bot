@@ -46,7 +46,7 @@ function bytesToSize($bytes, $precision = 2) {
     $query = "SELECT `id`,`text`,`added_by`, `added_at`
               FROM `pi_releases`
               WHERE `category`='".$category."'
-              ORDER BY `added_at` DESC";
+              ORDER BY `added_at` DESC, `id` DESC";
     $result_set = mysql_query($query);
     if(mysql_num_rows($result_set) > 0) {
       echo "
