@@ -41,43 +41,17 @@ function bytesToSize($bytes, $precision = 2) {
 } ?>
 
 <?php
-  require_once "includes/constants.php";
-  $connection = mysql_connect(DB_SERVER,DB_USER,DB_PASS);
 
-  if(!$connection) {
-    die("Database connection failed: " . mysql_error());
-  }
-
-  $db_select = mysql_select_db(DB_NAME,$connection);
-  if(!$db_select) {
-    die("Database selection failed: " . mysql_error());
-  }
-
-  $query = "SELECT `name` FROM `pi_rel_categories`";
-  $categories_set = mysql_query($query);
-
-  echo "
-    <table id='gradient-style' summary='Releases List'>
-      <thead>
-        <tr>
-          <th scope='col'>ID</th>
-          <th scope='col'>Release</th>
-          <th scope='col'>Downloader</th>
-        </tr>
-      </thead>
-      <tbody>
-      ";
-
-  while($category = mysql_fetch_array($categories_set)) {
+  function printReleasesForCategory($category) {
     $query = "SELECT `id`,`text`,`added_by`
               FROM `pi_releases`
-              WHERE `category`='".$category['name']."'
+              WHERE `category`='".$category."'
               ORDER BY `added_at` DESC";
     $result_set = mysql_query($query);
     if(mysql_num_rows($result_set) > 0) {
       echo "
         <tr>
-          <th colspan='3'>".$category['name']."</th>
+          <th colspan='3'>".$category."</th>
         </tr>";
       while($result = mysql_fetch_array($result_set)) {
         if(substr($result['text'],0,8) == "magnet:?") {
@@ -94,6 +68,42 @@ function bytesToSize($bytes, $precision = 2) {
             <td>".$result['added_by']."</td>
           </tr>";
       }
+    }
+  }
+
+  require_once "includes/constants.php";
+  $connection = mysql_connect(DB_SERVER,DB_USER,DB_PASS);
+
+  if(!$connection) {
+    die("Database connection failed: " . mysql_error());
+  }
+
+  $db_select = mysql_select_db(DB_NAME,$connection);
+  if(!$db_select) {
+    die("Database selection failed: " . mysql_error());
+  }
+
+  echo "
+    <table id='gradient-style' summary='Releases List'>
+      <thead>
+        <tr>
+          <th scope='col'>ID</th>
+          <th scope='col'>Release</th>
+          <th scope='col'>Downloader</th>
+        </tr>
+      </thead>
+      <tbody>
+      ";
+
+  if(isset($_GET['p'])) {
+    printReleasesForCategory($_GET['p']);
+  }
+  else {
+    $query = "SELECT `name` FROM `pi_rel_categories`";
+    $categories_set = mysql_query($query);
+
+    while($category = mysql_fetch_array($categories_set)) {
+      printReleasesForCategory($category['name']);
     }
   }
   echo "
